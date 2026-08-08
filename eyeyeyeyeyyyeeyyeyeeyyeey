@@ -51,6 +51,7 @@ SquircleVGlass={Image="",Rect=Rect.new(0,0,0,0),Radius=1},
 ["Squircle-BL-BR"]={Image="",Rect=Rect.new(0,0,0,0),Radius=1,AutoChange=false},
 Square={Image="",Rect=Rect.new(0,0,0,0),Radius=1,AutoChange=false},
 },
+}
 
 function d.Init(e,f)
 b=f
