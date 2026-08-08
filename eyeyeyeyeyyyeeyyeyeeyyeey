@@ -220,7 +220,42 @@ return loadstring(f)
 end
 end
 
-local LucideIcons = Loadstring(Get"https://raw.githubusercontent.com/eeeiqjjj/icon.github.io/refs/heads/main/lucide.lua")()
+local LucideIcons
+do
+	local src
+	local okGet, getResult = pcall(function()
+		return Get("https://raw.githubusercontent.com/eeeiqjjj/icon.github.io/refs/heads/main/lucide.lua")
+	end)
+	if okGet and type(getResult) == "string" and #getResult > 100 then
+		src = getResult
+	end
+
+	if src then
+		local okLS, lsFn = pcall(function()
+			return Loadstring(src)
+		end)
+		if okLS and type(lsFn) == "function" then
+			local okRun, mod = pcall(lsFn)
+			if okRun and type(mod) == "table" then
+				LucideIcons = mod
+			else
+				warn("[WindUI] Lucide module failed to run: " .. tostring(mod))
+			end
+		else
+			warn("[WindUI] Lucide loadstring failed: " .. tostring(lsFn))
+		end
+	else
+		warn("[WindUI] Failed to download Lucide icons")
+	end
+
+	-- fallback empty module so Icon() never crashes
+	if not LucideIcons then
+		LucideIcons = {
+			GetAsset = function() return nil end,
+			Icons = {},
+		}
+	end
+end
 
 local f={
 IconsType="lucide",
@@ -322,8 +357,16 @@ local r=f.Icons[m]
 if r and r.GetAsset then
 local asset = r.GetAsset(p)
 if asset then
+local url = asset.Url
+-- resolve getcustomasset path if needed
+if type(url) == "string" and not string.find(url, "rbxasset") and getcustomasset then
+local okAsset, assetId = pcall(getcustomasset, url)
+if okAsset and assetId then
+url = assetId
+end
+end
 return {
-asset.Url,
+url,
 {
 ImageRectSize = asset.ImageRectSize,
 ImageRectPosition = asset.ImageRectOffset or asset.ImageRectPosition or Vector2.new(0,0),
